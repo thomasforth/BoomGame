@@ -2,164 +2,459 @@
 <html>
 
 <head>
-	<title>BoomGame</title>
-	<meta name="viewport" content="user-scalable=no, initial-scale=1, width=device-width" />
-	<meta name="mobile-web-app-capable" content="yes" />
-	<script type="text/javascript" src="hammer.js"></script>
-	<link href="animate.css" rel="stylesheet" type="text/css">
-	<style type="text/css">
-		body {
-			padding: 0;
-			margin: 0;
-			background-color: green;
-			height: 100%;
-			width: 100%;
-			overflow: hidden;
-		}
-		#p1controls {
-			height: auto;
-			width: 100%;
-			position: absolute;
-			bottom: 0;
-			background-color: orange;
-			text-align: center;
-			margin: auto;
-		}
-		#p2controls {
-			height: auto;
-			width: 100%;
-			position: absolute;
-			top: 0;
-			-webkit-transform: rotate(180deg);
-			transform: rotate(180deg);
-			background-color: yellow;
-		}
-		#gameArea {
-			position: absolute;
-			top: 0;
-			height: 50%;
-			width: 100%;
-			-webkit-transform: translatey(50%);
-			transform: translatey(50%);
-			background-color: red;
-			text-align: center;
-		}
-		.soundbotImageHolder {
-			max-width: 20%;
-			height: auto;
-			padding: 1.8%;
-			display: inline-block;
-		}
-		.soundbotImage {
-			width: 100%;
-			height: 100%;
-			border-radius: 30%;
-			border: 3px solid black;
-		}
-		#wordArtHolderp1 {
-			width: 100%;
-			position: absolute;
-			bottom: 0;
-		}
-		#wordArtHolderp2 {
-			width: 100%;
-			-webkit-transform: rotate(180deg);
-			transform: rotate(180deg);
-			position: absolute;
-			top: 0;
-		}
-		#wordArtp1 {
-			width: 90%;
-		}
-		#wordArtp2 {
-			width: 90%;
-		}
-	</style>
+    <title>BoomGame</title>
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, width=device-width" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <script>
+        var hostPlatform = "android"; // if no platform is found, guess that it's Android (most likely is, due to penetration and bugs
+        if (navigator.userAgent.indexOf("Android") >= 0) {
+            hostPlatform = "android";
+        } else if (navigator.userAgent.indexOf("iPad") >= 0 || navigator.userAgent.indexOf("iPhone") >= 0 || navigator.userAgent.indexOf("iPod") >= 0) {
+            hostPlatform = "ios";
+        } else if (navigator.platform == "Win32" || navigator.platform == "Win64" || navigator.platform == "MacIntel") {
+            hostPlatform = "desktop";
+        } else {
+            hostPlatform = "windowsphone";
+        }
+
+         if (hostPlatform == "ios" || hostPlatform == "android") {
+            document.write('<script type="text/javascript" src="cordova.js"><\/script>');
+        }
+        if (hostPlatform == "windowsphone") {
+            document.write('<script type="text/javascript" src="js/fuzzysearch_moodstocksAPI.js"><\/script>');
+            document.write('<script type="text/javascript" src="js/fuse.js"><\/script>');
+        }
+    </script>
+    <script type="text/javascript" src="hammer.js"></script>
+    <link href="animate.css" rel="stylesheet" type="text/css">
+    <style type="text/css">
+        @font-face {
+            font-family: 'Muli';
+            src: url('android_asset/www/fonts/Muli-Regular.ttf');
+            src: url('../fonts/Muli-Regular.ttf');
+            src: url('fonts/Muli-Regular.ttf');
+        }
+        body {
+            padding: 0;
+            margin: 0;
+            background-color: #7e9557;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            font-family: 'Muli';
+        }
+        #p1controls {
+            height: auto;
+            width: 100%;
+            position: absolute;
+            bottom: 0;
+            background-color: #e88052;
+            text-align: center;
+            margin: auto;
+            -webkit-box-shadow: 0px 0px 2em 0px rgba(0, 0, 0, 1);
+            box-shadow: 0px 0px 2em 0px rgba(0, 0, 0, 1);
+            pointer-events: none;
+        }
+        #p2controls {
+            height: auto;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            -webkit-transform: rotate(180deg);
+            transform: rotate(180deg);
+            background-color: #e8523d;
+            -webkit-box-shadow: 0px 0px 2em 0px rgba(0, 0, 0, 1);
+            box-shadow: 0px 0px 2em 0px rgba(0, 0, 0, 1);
+            pointer-events: none;
+        }
+        #gameArea {
+            position: absolute;
+            top: 0;
+            height: 50%;
+            width: 100%;
+            -webkit-transform: translatey(50%);
+            transform: translatey(50%);
+            background-color: #f4d543;
+            text-align: center;
+            -webkit-box-shadow: 0px 0px 2em 0px rgba(0, 0, 0, 1);
+            box-shadow: 0px 0px 2em 0px rgba(0, 0, 0, 1);
+        }
+        .soundbotImageHolder {
+            max-width: 20%;
+            height: auto;
+            padding: 1.8%;
+            display: inline-block;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+        }
+        .soundbotImage {
+            width: 100%;
+            height: 100%;
+            border-radius: 30%;
+            border: 0.2em solid black;
+            box-shadow: 0.2em 0.2em 0.2em #999999;
+        }
+        #wordArtHolderp1 {
+            width: 100%;
+            position: absolute;
+            bottom: 0;
+        }
+        #wordArtHolderp2 {
+            width: 100%;
+            -webkit-transform: rotate(180deg);
+            transform: rotate(180deg);
+            position: absolute;
+            top: 0;
+        }
+        #wordArtp1 {
+            width: 90%;
+            padding-bottom: 1em;
+        }
+        #wordArtp2 {
+            width: 90%;
+            padding-bottom: 1em;
+        }
+        #gameScreenText {
+            height: 100%;
+            width:100%;
+            
+  
+        }
+        #readyText {
+            position: absolute;
+            text-align: center;
+            width: 100%;
+        
+            font-size: 5em;
+            color: #2d8894;
+        }
+        #goText {
+            position: absolute;
+            text-align: center;
+            width: 100%;
+        
+            font-size: 10em;
+            color: #2d8894;
+        }
+        #scoreText {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            font-size: 3em;
+
+        }
+        #scoreMessage {
+            font-size: 2em;
+            color: #e8523d;
+        }
+        #score {
+            
+            color: #2d8894;
+        }
+    </style>
 </head>
 
-<body>
-	<div id="p1controls">
-		<div class="soundbotImageHolder">
-			<img class="soundbotImage" id="belleimage1" src="Soundbot_Heads/belle.png" />
-		</div>
-		<div class="soundbotImageHolder">
-			<img class="soundbotImage" id="boombotimage1" src="Soundbot_Heads/boombot.png" />
-		</div>
-		<div class="soundbotImageHolder">
-			<img class="soundbotImage" id="honkimage1" src="Soundbot_Heads/honk.png" />
-		</div>
-		<div class="soundbotImageHolder">
-			<img class="soundbotImage" id="rustyimage1" src="Soundbot_Heads/rusty.png" />
-		</div>
-	</div>
+<body onload="onBodyLoad()">
+    <div id="p1controls">
+        <div class="soundbotImageHolder">
+            <img class="soundbotImage animated" id="dingimage1" src="Soundbot_Heads/belle.png" />
+        </div>
+        <div class="soundbotImageHolder">
+            <img class="soundbotImage animated" id="boomimage1" src="Soundbot_Heads/boombot.png" />
+        </div>
+        <div class="soundbotImageHolder">
+            <img class="soundbotImage animated" id="honkimage1" src="Soundbot_Heads/honk.png" class/>
+        </div>
+        <div class="soundbotImageHolder">
+            <img class="soundbotImage animated" id="squeakimage1" src="Soundbot_Heads/rusty.png" />
+        </div>
+    </div>
 
-	<div id="gameArea">
-		<div id="wordArtHolderp1">
-			<img id="wordArtp1" src="Soundbot_Words/boom.png" />
-		</div>
-		<div id="wordArtHolderp2">
-			<img id="wordArtp2" src="Soundbot_Words/honk.png" />
-		</div>
-	</div>
+    <div id="gameArea">
+        <div id="wordArtHolderp1">
+            <img id="wordArtp1" src="" class="animated" />
+        </div>
+        <div id="wordArtHolderp2">
+            <img id="wordArtp2" src="" class="animated" />
+        </div>
+    </div>
 
-	<div id="p2controls">
-		<div class="soundbotImageHolder">
-			<img class="soundbotImage" id="belleimage2" src="Soundbot_Heads/belle.png" />
-		</div>
-		<div class="soundbotImageHolder">
-			<img class="soundbotImage" id="boombotimage2" src="Soundbot_Heads/boombot.png" />
-		</div>
-		<div class="soundbotImageHolder">
-			<img class="soundbotImage" id="honkimage2" src="Soundbot_Heads/honk.png" />
-		</div>
-		<div class="soundbotImageHolder">
-			<img class="soundbotImage" id="rustyimage2" src="Soundbot_Heads/rusty.png" />
-		</div>
-	</div>
+    <div id="gameScreenText">
+        <span id="readyText" class="animated fadeOut textItem">Get ready....</span>
+        <span id="goText" class="animated fadeOut textItem">GO!</span>
 
-	<script>
-		// set hammer touch events
-		Hammer(document.getElementById('belleimage1')).on("tap", function () {
-			buttonPress(1, "ding");
-		});
-		Hammer(document.getElementById('belleimage2')).on("tap", function () {
-			buttonPress(2, "ding");
-		});
-		Hammer(document.getElementById('boombotimage1')).on("tap", function () {
-			buttonPress(1, "boom");
-		});
-		Hammer(document.getElementById('boombotimage2')).on("tap", function () {
-			buttonPress(2, "boom");
-		});
-		Hammer(document.getElementById('rustyimage1')).on("tap", function () {
-			buttonPress(1, "squeak");
-		});
-		Hammer(document.getElementById('rustyimage2')).on("tap", function () {
-			buttonPress(2, "squeak");
-		});
-		Hammer(document.getElementById('honkimage1')).on("tap", function () {
-			buttonPress(1, "honk");
-		});
-		Hammer(document.getElementById('honkimage2')).on("tap", function () {
-			buttonPress(2, "honk");
-		});
+    </div>
+
+    <div id="scoreText">
+        <span id="scoreMessage" class="textItem">Sample</span>
+        <span id="score" class="textItem">Sample</span>
+
+    </div>
+
+    <div id="p2controls">
+        <div class="soundbotImageHolder">
+            <img class="soundbotImage animated" id="dingimage2" src="Soundbot_Heads/belle.png" />
+        </div>
+        <div class="soundbotImageHolder">
+            <img class="soundbotImage animated" id="boomimage2" src="Soundbot_Heads/boombot.png" />
+        </div>
+        <div class="soundbotImageHolder">
+            <img class="soundbotImage animated" id="honkimage2" src="Soundbot_Heads/honk.png" />
+        </div>
+        <div class="soundbotImageHolder">
+            <img class="soundbotImage animated" id="squeakimage2" src="Soundbot_Heads/rusty.png" />
+        </div>
+    </div>
+
+    <script>
+        // set hammer touch events
+        Hammer(document.getElementById('dingimage1')).on("tap", function() {
+            buttonPress(1, "ding");
+        });
+        Hammer(document.getElementById('dingimage2')).on("tap", function() {
+            buttonPress(2, "ding");
+        });
+        Hammer(document.getElementById('boomimage1')).on("tap", function() {
+            buttonPress(1, "boom");
+        });
+        Hammer(document.getElementById('boomimage2')).on("tap", function() {
+            buttonPress(2, "boom");
+        });
+        Hammer(document.getElementById('squeakimage1')).on("tap", function() {
+            buttonPress(1, "squeak");
+        });
+        Hammer(document.getElementById('squeakimage2')).on("tap", function() {
+            buttonPress(2, "squeak");
+        });
+        Hammer(document.getElementById('honkimage1')).on("tap", function() {
+            buttonPress(1, "honk");
+        });
+        Hammer(document.getElementById('honkimage2')).on("tap", function() {
+            buttonPress(2, "honk");
+        });
+
+
+        function onBodyLoad() {
+            setSounds();
+            centreText()
+            setTimeout(function() {
+                pickSounds();
+            }, 1500);
+
+        }
+
+        var robotNoises = {
+            'ding': 'ding.mp3',
+            'boom': 'boom.mp3',
+            'squeak': 'squeek.m4a',
+            'honk': 'honk.m4a',
+        }
+
+
+        var player1correct = false;
+        var player2correct = false;
+
+
+        var pressCount = 0;
+
+        var startTime = null;
+        var stopTime = null;
+        
+        function centreText() {
+            var elements = document.getElementsByClassName('textItem');
+            for(var i=0, l=elements.length; i<l; i++){
+                elementHeight = elements[i].clientHeight;
+        topMeasure = (window.innerHeight - elementHeight)/2
+    elements[i].style.top = topMeasure + "px";
+     
+              elements[i].style.transform = "rotate(-90deg)";
+                elements[i].style.webkitTransform = "rotate(-90deg)";
+}
+            
+
+        }
+
+        function buttonPress(playerNumber, soundName) {
+            soundHolder = "wordArtp" + playerNumber;
+            soundFile = robotNoises[soundName];
+
+            console.log(playerNumber)
+            if (playerNumber == 1) {
+                if (soundName == targetSound) {
+                    player1correct = true;
+                }
+
+                p1controls.style.pointerEvents = "none";
+            } else if (playerNumber == 2) {
+                if (soundName == targetSound) {
+                    player2correct = true;
+                }
+                player2Press = true;
+
+                p2controls.style.pointerEvents = "none";
+            }
+
+            pressCount++;
+            if (pressCount == 2) {
+                setTimeout(function() {
+                    endRound();
+                }, 1000)
+            }
 
 
 
+            buttonName = soundName + "image" + playerNumber;
+            document.getElementById(buttonName).classList.add('pulse');
+            setTimeout(function() {
+                document.getElementById(buttonName).classList.remove('pulse');
+            }, 1000);
+            console.log(buttonName);
 
-		function buttonPress(playerNumber, soundName) {
-			soundHolder = "wordArtp" + playerNumber;
-			//alert("Soundbot_Words/" + soundName + ".png");
-			document.getElementById(soundHolder).src = "Soundbot_Words/" + soundName + ".png";
-		}
+            if (hostPlatform == "desktop") {
+                robotNoise.src = "Robot_Sounds/" + soundFile;
+            }
+            if (hostPlatform == "android") {
+                robotNoise.src = "/android_asset/www/Robot_Sounds/" + soundFile;
+            }
 
-		var animations = ["bounce", "rubberBand", "shake", "swing", "tada", "wobble"];
-		var randomAnimation = animations[Math.floor(Math.random() * animations.length)];
-		wordArtp1.classList.add(randomAnimation);
+            robotNoise.play();
+
+            randomAnimation = animations[Math.floor(Math.random() * animations.length)];
+            console.log(randomAnimation);
+
+            document.getElementById(soundHolder).src = "Soundbot_Words/" + soundName + ".png";
+            document.getElementById(soundHolder).classList.add(randomAnimation);
+            setTimeout(function() {
+                document.getElementById(soundHolder).classList.remove(randomAnimation);
+            }, 1000);
+        }
+
+        var sounds = ["ding", "boom", "honk", "squeak"];
+        var targetSound;
+
+        function pickSounds() {
+            targetSound = sounds[Math.floor(Math.random() * sounds.length)];
+            noise = robotNoises[targetSound];
+            console.log(noise);
+            console.log(targetSound);
+
+            if (hostPlatform == "desktop") {
+                selectionSound.src = "Robot_Sounds/" + noise;
+            }
+            if (hostPlatform == "android") {
+                selectionSound.src = "/android_asset/www/Robot_Sounds/" + noise;
+            }
+
+            readyText.classList.remove('fadeOut');
+            readyText.classList.add('fadeIn');
+
+            setTimeout(function() {
+                readyText.classList.remove('fadeIn');
+                readyText.classList.add('fadeOut');
+            }, 1200)
+
+            setTimeout(function() {
+                goText.classList.remove('fadeOut');
+                goText.classList.add('fadeIn');
+                selectionSound.play();
+
+            }, 2200)
+
+            setTimeout(function() {
+                goText.classList.remove('fadeIn');
+                goText.classList.add('fadeOut');
+                var start = new Date();
+                startTime = start.getTime();
+
+                p1controls.style.pointerEvents = "all";
+                p2controls.style.pointerEvents = "all";
+
+            }, 3000)
+
+
+        }
+
+        var randomAnimation;
+        var animations = ["bounce", "rubberBand", "shake", "swing", "tada", "wobble"];
+        var roundPoints = 0;
+
+        function endRound() {
+
+            var stop = new Date()
+            stopTime = stop.getTime();
+
+            difference = (stopTime - startTime);
+            console.log(difference);
+
+            wordArtp1.classList.add('fadeOut');
+            wordArtp2.classList.add('fadeOut');
+
+            if (player1correct == true && player2correct == true) {
+
+                scoreMessage.innerHTML = "Awesome, you're both correct! <br> x2 score multiplier";
+                doubleSuccess.play();
+                score.innerHTML = "<br><br>" + difference * 2 + " Points";
+            }
+            if (player1correct == false && player2correct == true) {
+
+                scoreMessage.innerHTML = "Well done Player 2!";
+                singleSuccess.play();
+                score.innerHTML = "<br><br>" + difference + " Points";
+            }
+            if (player1correct == true && player2correct == false) {
+
+                scoreMessage.innerHTML = "Well done Player 1!";
+                score.innerHTML = "<br><br>" + difference + " Points";
+
+                singleSuccess.play();
+            }
+            if (player1correct == false && player2correct == false) {
+                scoreMessage.innerHTML = "Sorry you're both wrong!";
+                score.innerHTML = "<br><br> 0 Points";
+                wrongSound.play();
+            }
+
+
+        }
+
+        /*		wordArtp1.classList.add(randomAnimation);
 		setTimeout(function () {
 			wordArtp1.classList.remove(randomAnimation);
-		}, 4000);
-	</script>
+		}, 4000);*/
+
+
+        function setSounds() {
+            if (hostPlatform == "android") {
+                selectionSound = new Media("/android_asset/www/Robot_Sounds/squeek.m4a", function() {
+                    this.release();
+                });
+
+                robotNoise = new Media("/android_asset/www/Robot_Sounds/squeek.m4a", function() {
+                    this.release();
+                });
+                singleSuccess = new Media("/android_asset/www/sounds/oneCorrect.wav", function() {
+                    this.release();
+                });
+                doubleSuccess = new Media("/android_asset/www/sounds/success.mp3", function() {
+                    this.release();
+                });
+                wrongSound = new Media("/android_asset/www/sounds/wrong.mp3", function() {
+                    this.release();
+                });
+
+
+            }
+            if (hostPlatform == "desktop") {
+                selectionSound = new Audio("Robot_Sounds/squeek.m4a");
+                robotNoise = new Audio("Robot_Sounds/squeek.m4a");
+                singleSuccess = new Audio("sounds/oneCorrect.wav");
+                doubleSuccess = new Audio("sounds/success.mp3");
+                wrongSound = new Audio("sounds/wrong.mp3");
+
+            }
+
+        }
+    </script>
 </body>
 
 </html>
